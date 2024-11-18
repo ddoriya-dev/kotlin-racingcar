@@ -9,15 +9,15 @@ class RacingCarGame(
     private val carList = mutableListOf<Car>()
 
     private fun init() {
-        repeat(gameSettings.carCount) {
-            this.carList.add(Car())
+        gameSettings.carNameList.forEach {
+            this.carList.add(Car(it))
         }
     }
 
     private fun playGame() {
         carList.forEach {
             it.move()
-            gameMessageView(it)
+            gameProcessMessageView(it)
         }
     }
 
@@ -28,18 +28,30 @@ class RacingCarGame(
             playGame()
             println()
         }
+        gameWinnerMessageView(winnerList(this.carList))
     }
 
-    private fun gameMessageView(car: Car) {
-        repeat(car.getPosition()) {
+    fun winnerList(carList: List<Car>): List<Car> {
+        val maxPosition = carList.maxOf { it.position }
+        return carList.filter { it.position == maxPosition }
+    }
+
+    private fun gameProcessMessageView(car: Car) {
+        print("${car.name} : ")
+        repeat(car.position) {
             print(GameRule.RACING_CAR_MOVE_TEXT)
         }
         println()
     }
+
+    fun gameWinnerMessageView(winnerList: List<Car>) {
+        println("${winnerList.joinToString(", ") { it.name }} ${GameRule.WINNER_MESSAGE} ")
+    }
 }
 
 fun main() {
-    val gameSettings = RacingCarGameSettings().inputBySettings()
+//    val gameSettings = RacingCarGameSettings().inputBySettings()
+    val gameSettings = GameSettings(listOf("pobi", "crong", "honux"), 5)
     val racingCarGame = RacingCarGame(gameSettings)
     racingCarGame.start()
 }
