@@ -50,8 +50,7 @@ class RacingCarGame(
 }
 
 fun main() {
-//    val gameSettings = RacingCarGameSettings().inputBySettings()
-    val gameSettings = GameSettings(listOf("pobi", "crong", "honux"), 5)
+    val gameSettings = RacingCarGameSettings().inputBySettings()
     val racingCarGame = RacingCarGame(gameSettings)
     racingCarGame.start()
 }
