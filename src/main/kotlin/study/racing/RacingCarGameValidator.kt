@@ -14,4 +14,8 @@ open class RacingCarGameValidator {
 
         return true
     }
+
+    fun isOverMaxNameLength(nameList: List<String>): Boolean {
+        return nameList.any { it.length > 5 }
+    }
 }

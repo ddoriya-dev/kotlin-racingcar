@@ -44,7 +44,7 @@ class RacingCarGame(
         println()
     }
 
-    fun gameWinnerMessageView(winnerList: List<Car>) {
+    private fun gameWinnerMessageView(winnerList: List<Car>) {
         println("${winnerList.joinToString(", ") { it.name }} ${GameRule.WINNER_MESSAGE} ")
     }
 }
