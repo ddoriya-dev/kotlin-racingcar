@@ -5,40 +5,37 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.startWith
+import study.racing.model.Car
+import study.racing.model.RacingCarGameSettings
+import study.racing.view.InputView
 import java.io.ByteArrayInputStream
-import kotlin.random.Random
 
 /**
  * @author 이상준
  */
 class RacingCarGameTest : StringSpec({
     "자동차 게임 설정 Input 테스트" {
-        val racingCarGameSettings = RacingCarGameSettings()
-
         val input = "aa,bb,cc\n5\n"
         val fakeInputStream = ByteArrayInputStream(input.toByteArray())
         System.setIn(fakeInputStream)
 
-        val gameSettings: GameSettings = racingCarGameSettings.inputBySettings()
+        val racingCarGameSettings: RacingCarGameSettings = InputView().inputBySettings()
 
-        gameSettings.carNameList.size shouldBe 3
-        gameSettings.racingCount shouldBe 5
+        racingCarGameSettings.carNames.size shouldBe 3
+        racingCarGameSettings.racingCount shouldBe 5
 
-        gameSettings.carNameList[0] shouldBe "aa"
-        gameSettings.carNameList[1] shouldBe "bb"
-        gameSettings.carNameList[2] shouldBe "cc"
+        racingCarGameSettings.carNames[0] shouldBe "aa"
+        racingCarGameSettings.carNames[1] shouldBe "bb"
+        racingCarGameSettings.carNames[2] shouldBe "cc"
     }
-
     "자동차 게임 설정 Input 예외" {
-        val racingCarGameSettings = RacingCarGameSettings()
-
         var input = "aa,bb,cc,aa\n5\n"
         var fakeInputStream = ByteArrayInputStream(input.toByteArray())
         System.setIn(fakeInputStream)
 
         var exception =
             shouldThrow<IllegalArgumentException> {
-                racingCarGameSettings.inputBySettings()
+                InputView().inputBySettings()
             }
         exception.message should startWith("중복된 이름이 존재 합니다.")
 
@@ -48,53 +45,62 @@ class RacingCarGameTest : StringSpec({
 
         exception =
             shouldThrow<IllegalArgumentException> {
-                racingCarGameSettings.inputBySettings()
+                InputView().inputBySettings()
             }
         exception.message should startWith("For input")
     }
-    "자동차 게임 Move 테스트" {
-        Car("test", Random(123)).apply {
-            move()
-            position shouldBe 1
+    "이름 중복 체크" {
+        RacingCarGameValidator().isDuplicateNames(listOf("aa", "bb", "cc", "aa")) shouldBe true
+        RacingCarGameValidator().isDuplicateNames(listOf("aa", "bb", "cc")) shouldBe false
+    }
+    "5자 이상 이름 길이 체크" {
+        RacingCarGameValidator().isOverMaxNames(listOf("aaaaa", "bb", "cc", "dd", "ee")) shouldBe true
+        RacingCarGameValidator().isOverMaxNames(listOf("aaaa", "bbbbbb", "cc", "dd", "ee")) shouldBe true
+        RacingCarGameValidator().isOverMaxNames(listOf("aa", "bb", "cc", "dd")) shouldBe false
+    }
+    "자동차가 이동 하지 않는다." {
+        (0..3).forEach {
+            Car("test").apply {
+                move(it)
+                position shouldBe 0
+            }
         }
-
-        Car("test", Random(1234)).apply {
-            move()
-            position shouldBe 0
+    }
+    "자동차가 이동 한다." {
+        (4..9).forEach {
+            Car("test").apply {
+                move(it)
+                position shouldBe 1
+            }
         }
     }
     "자동차 게임 승리" {
-        var winnerList =
-            RacingCarGame(GameSettings(carNameList = listOf("test1", "test2", "test3"), racingCount = 5)).winnerList(
-                listOf(
-                    Car("test1", Random(123)).apply {
-                        move()
-                        move()
-                        move()
-                    },
-                    Car("test2"),
-                    Car("test3"),
-                ),
+        val cars =
+            listOf(
+                Car("test1", 1),
+                Car("test2", 2),
+                Car("test3", 3),
+                Car("test4", 4),
+                Car("test5", 5),
             )
-        winnerList[0].name shouldBe "test1"
+        val racingCarGameSettings = RacingCarGameSettings(cars.map { it.name }, cars.size)
 
-        winnerList =
-            RacingCarGame(GameSettings(carNameList = listOf("test1", "test2", "test3"), racingCount = 5)).winnerList(
-                listOf(
-                    Car("test1", Random(123)).apply {
-                        move()
-                        move()
-                        move()
-                    },
-                    Car("test2", Random(123)).apply {
-                        move()
-                        move()
-                        move()
-                    },
-                    Car("test3"),
-                ),
+        RacingCarGame(racingCarGameSettings).winners(cars).size shouldBe 1
+        RacingCarGame(racingCarGameSettings).winners(cars)[0].name shouldBe "test5"
+    }
+
+    "자동차 게임 중복 승리" {
+        val cars =
+            listOf(
+                Car("test1", 1),
+                Car("test2", 2),
+                Car("test3", 3),
+                Car("test4", 5),
+                Car("test5", 5),
             )
-        winnerList[0].name shouldBe "test1"
-        winnerList[1].name shouldBe "test2"
+        val racingCarGameSettings = RacingCarGameSettings(cars.map { it.name }, cars.size)
+
+        RacingCarGame(racingCarGameSettings).winners(cars).size shouldBe 2
+        RacingCarGame(racingCarGameSettings).winners(cars).map { it.name } shouldBe arrayOf("test4", "test5")
     }
 })

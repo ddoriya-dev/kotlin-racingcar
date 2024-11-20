@@ -1,23 +1,26 @@
 package study.racing
 
+import study.racing.model.Car
+import study.racing.model.RacingCarGameSettings
+import study.racing.view.InputView
+import study.racing.view.ResultView
+
 /**
  * @author 이상준
  */
 class RacingCarGame(
-    private val gameSettings: GameSettings,
+    private val gameSettings: RacingCarGameSettings,
 ) {
-    private val carList = mutableListOf<Car>()
+    private val cars = mutableListOf<Car>()
 
     private fun init() {
-        gameSettings.carNameList.forEach {
-            this.carList.add(Car(it))
-        }
+        this.cars.addAll(gameSettings.carNames.map { Car(it) })
     }
 
     private fun playGame() {
-        carList.forEach {
+        cars.forEach {
             it.move()
-            gameProcessMessageView(it)
+            ResultView().gameProcessMessageView(it)
         }
     }
 
@@ -28,29 +31,17 @@ class RacingCarGame(
             playGame()
             println()
         }
-        gameWinnerMessageView(winnerList(this.carList))
+        ResultView().gameWinnerMessageView(winners(this.cars))
     }
 
-    fun winnerList(carList: List<Car>): List<Car> {
-        val maxPosition = carList.maxOf { it.position }
-        return carList.filter { it.position == maxPosition }
-    }
-
-    private fun gameProcessMessageView(car: Car) {
-        print("${car.name} : ")
-        repeat(car.position) {
-            print(GameRule.RACING_CAR_MOVE_TEXT)
-        }
-        println()
-    }
-
-    private fun gameWinnerMessageView(winnerList: List<Car>) {
-        println("${winnerList.joinToString(", ") { it.name }} ${GameRule.WINNER_MESSAGE} ")
+    fun winners(cars: List<Car>): List<Car> {
+        val maxPosition = cars.maxOf { it.position }
+        return cars.filter { it.position == maxPosition }
     }
 }
 
 fun main() {
-    val gameSettings = RacingCarGameSettings().inputBySettings()
+    val gameSettings = InputView().inputBySettings()
     val racingCarGame = RacingCarGame(gameSettings)
     racingCarGame.start()
 }
