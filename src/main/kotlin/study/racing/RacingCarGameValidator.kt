@@ -3,7 +3,7 @@ package study.racing
 /**
  * @author 이상준
  */
-open class RacingCarGameValidator {
+class RacingCarGameValidator {
     fun isDuplicateNames(names: List<String>): Boolean {
         return names.size != names.toSet().size
     }

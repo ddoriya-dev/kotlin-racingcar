@@ -4,6 +4,7 @@ import study.racing.model.Car
 import study.racing.model.RacingCarGameSettings
 import study.racing.view.InputView
 import study.racing.view.ResultView
+import kotlin.random.Random
 
 /**
  * @author 이상준
@@ -11,32 +12,37 @@ import study.racing.view.ResultView
 class RacingCarGame(
     private val gameSettings: RacingCarGameSettings,
 ) {
-    private val cars = mutableListOf<Car>()
+    val cars = mutableListOf<Car>()
 
-    private fun init() {
+    init {
         this.cars.addAll(gameSettings.carNames.map { Car(it) })
     }
 
-    private fun playGame() {
-        cars.forEach {
-            it.move()
-            ResultView().gameProcessMessageView(it)
-        }
+    private fun getRandomNumber(): Int {
+        return Random.nextInt(Car.MAX_RANDOM_POSITION)
+    }
+
+    fun playGame(
+        car: Car,
+        moveNumber: Int,
+    ) {
+        car.move(moveNumber)
     }
 
     fun start() {
-        init()
-
         repeat(gameSettings.racingCount) {
-            playGame()
+            cars.forEach {
+                playGame(it, getRandomNumber())
+                ResultView().gameProcessMessageView(it)
+            }
             println()
         }
-        ResultView().gameWinnerMessageView(winners(this.cars))
+        ResultView().gameWinnerMessageView(winners())
     }
 
-    fun winners(cars: List<Car>): List<Car> {
-        val maxPosition = cars.maxOf { it.position }
-        return cars.filter { it.position == maxPosition }
+    fun winners(): List<Car> {
+        val maxPosition = this.cars.maxOf { it.position }
+        return this.cars.filter { it.position == maxPosition }
     }
 }
 
