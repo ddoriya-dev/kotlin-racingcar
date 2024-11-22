@@ -12,27 +12,18 @@ import kotlin.random.Random
 class RacingCarGame(
     private val gameSettings: RacingCarGameSettings,
 ) {
-    val cars = mutableListOf<Car>()
-
-    init {
-        this.cars.addAll(gameSettings.carNames.map { Car(it) })
-    }
-
     private fun getRandomNumber(): Int {
         return Random.nextInt(Car.MAX_RANDOM_POSITION)
     }
 
-    fun playGame(
-        car: Car,
-        moveNumber: Int,
-    ) {
-        car.move(moveNumber)
+    private fun playGame(car: Car) {
+        car.move(getRandomNumber())
     }
 
     fun start() {
         repeat(gameSettings.racingCount) {
-            cars.forEach {
-                playGame(it, getRandomNumber())
+            gameSettings.cars.forEach {
+                playGame(it)
                 ResultView().gameProcessMessageView(it)
             }
             println()
@@ -41,8 +32,8 @@ class RacingCarGame(
     }
 
     fun winners(): List<Car> {
-        val maxPosition = this.cars.maxOf { it.position }
-        return this.cars.filter { it.position == maxPosition }
+        val maxPosition = gameSettings.cars.maxOf { it.position }
+        return gameSettings.cars.filter { it.position == maxPosition }
     }
 }
 

@@ -1,6 +1,7 @@
 package study.racing.view
 
 import study.racing.RacingCarGameValidator
+import study.racing.model.Car
 import study.racing.model.RacingCarGameSettings
 
 /**
@@ -20,7 +21,7 @@ class InputView {
         println("시도할 횟수는 몇 회인가요?")
         val racingCount = readlnOrNull()?.toInt() ?: throw IllegalArgumentException("입력이 없습니다.")
 
-        return RacingCarGameSettings(carNames, racingCount)
+        return RacingCarGameSettings(carNames.map { Car(it) }, racingCount)
     }
 
     private fun carNames(inputName: String): List<String> {
